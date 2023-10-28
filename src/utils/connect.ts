@@ -5,10 +5,18 @@ import wallet from "./Arweave-wallet";
 export default function connect() {
     const _type = useNavBar.getState().type
     if (_type === "arconnect") {
-        arconnect_connect().then().catch((err) => console.log(err))
+        useNavBar.getState().setType(null)
+        arconnect_connect().then(() => useNavBar.getState().setType("arconnect")).catch((err) => {
+            console.log(err)
+            useNavBar.getState().setType("arconnect")
+        })
     }
     if (_type === "arweave.app") {
-        arweave_app_connect().then().catch((err) => console.log(err))
+        useNavBar.getState().setType(null)
+        arweave_app_connect().then(() => useNavBar.getState().setType("arweave.app")).catch((err) => {
+            useNavBar.getState().setType("arweave.app")
+            console.log(err)
+        })
     }
 }
 const arconnect_connect = async () => {
@@ -30,6 +38,7 @@ const arconnect_connect = async () => {
             } catch (error) {
                 console.log(error)
                 useAddress.getState().unset_address()
+                useNavBar.getState().setType("arconnect")
             }
         }
     }
@@ -40,9 +49,11 @@ const arweave_app_connect = async () => {
         await wallet.connect()
         if (wallet.address?.length) {
             await useAddress.getState().set_address("arweave.app")
+            useNavBar.getState().setType("arweave.app")
         }
     } catch (err) {
         console.log(err)
+        useNavBar.getState().setType("arweave.app")
     }
 }
 
