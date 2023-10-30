@@ -11,10 +11,16 @@
   },
   "dependencies": {
     "@nextui-org/react": "^2.1.13",
+    "@vidstack/react": "^1.5.0",
     "arweave-wallet-connector": "^1.0.2",
     "framer-motion": "^10.16.4",
+    "localforage": "^1.10.0",
+    "match-sorter": "^6.3.1",
+    "media-icons": "^1.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.17.0",
+    "sort-by": "^1.2.0",
     "zustand": "^4.4.4"
   },
   "devDependencies": {

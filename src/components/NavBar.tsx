@@ -22,6 +22,7 @@ import connect, { automatically_connect } from "../utils/connect";
 import { useEffect } from "react";
 import useAddress from "../stores/useAddress";
 import disconnect from "../utils/disconnect";
+import { useNavigate } from "react-router-dom";
 export default function NavBar() {
   const address = useAddress((state) => state.address);
   const type = useAddress((state) => state.type);
@@ -30,6 +31,7 @@ export default function NavBar() {
   }, [address, type]);
   const setType = useNavBar((state) => state.setType);
   const _type = useNavBar((state) => state.type);
+  const navigate = useNavigate();
   return (
     <>
       <Navbar isBordered={true} isBlurred={false}>
@@ -66,6 +68,7 @@ export default function NavBar() {
                         key="studio"
                         showDivider={true}
                         startContent={<AiFillVideoCamera size={"20"} />}
+                        onClick={() => navigate("/studio")}
                       >
                         Studio
                       </DropdownItem>
