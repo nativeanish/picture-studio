@@ -22,6 +22,7 @@ function UploadVideo(argu: argu) {
   const type = useVideo((state) => state.type);
   const set_type = useVideo((state) => state.set_type);
   const [scrollBehavior] = useState<"inside">("inside");
+  const reset = useVideo((state) => state.reset);
   return (
     <>
       <Modal
@@ -46,11 +47,17 @@ function UploadVideo(argu: argu) {
                     defaultSelectedKey={type}
                     selectedKey={type}
                     onSelectionChange={(e) =>
-                      e === "open"
-                        ? set_type("open")
-                        : e === "paid"
-                        ? set_type("paid")
-                        : null
+                      e === "open" ? (
+                        <>
+                          {set_type("open")}
+                          {reset()}{" "}
+                        </>
+                      ) : e === "paid" ? (
+                        <>
+                          {set_type("paid")}
+                          {reset()}
+                        </>
+                      ) : null
                     }
                   >
                     <Tab

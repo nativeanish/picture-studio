@@ -4,10 +4,12 @@ import { useNavigate } from "react-router-dom";
 import LocalStorageService from "../hooks/localstorage";
 import { automatically_connect } from "../utils/connect";
 import NavBar from "../components/NavBar";
-import { Button, Image, useDisclosure } from "@nextui-org/react";
+import { Button, Divider, Image, useDisclosure } from "@nextui-org/react";
 import video from "../images/Video_Upload.svg";
 import { RiVideoUploadFill } from "react-icons/ri";
 import UploadVideo from "../components/UploadVideo";
+import useVideo from "../stores/useVideo";
+import Playlist from "../components/Playlist";
 function Studio() {
   const address = useAddress((state) => state.address);
   const type = useAddress((state) => state.type);
@@ -21,6 +23,7 @@ function Studio() {
     }
   }, [localstorage, navigate, address, type]);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const reset = useVideo((state) => state.reset);
   return (
     <>
       <NavBar />
@@ -33,6 +36,7 @@ function Studio() {
                 color="primary"
                 startContent={<RiVideoUploadFill />}
                 onPress={onOpen}
+                onClick={() => reset()}
               >
                 Upload
               </Button>
@@ -43,6 +47,12 @@ function Studio() {
               />
             </div>
           </div>
+        </div>
+      </div>
+      <div className="pt-4">
+        <Divider />
+        <div>
+          <Playlist />
         </div>
       </div>
     </>
