@@ -10,18 +10,22 @@ import { RiVideoUploadFill } from "react-icons/ri";
 import UploadVideo from "../components/UploadVideo";
 import useVideo from "../stores/useVideo";
 import Playlist from "../components/Playlist";
+import useUserData from "../stores/useUserData";
 function Studio() {
   const address = useAddress((state) => state.address);
-  const type = useAddress((state) => state.type);
   const navigate = useNavigate();
   const localstorage = LocalStorageService;
+  const _get = useUserData((state) => state._get);
   useEffect(() => {
     if (!localstorage.getItem("address")) {
       navigate("/");
     } else {
       automatically_connect();
+      if (address?.length) {
+        _get();
+      }
     }
-  }, [localstorage, navigate, address, type]);
+  }, [localstorage, navigate, address, _get]);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const reset = useVideo((state) => state.reset);
   return (

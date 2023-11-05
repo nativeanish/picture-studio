@@ -5,6 +5,36 @@ import Transaction from "arweave/node/lib/transaction";
  * Arweave wallet declarations
  */
 declare global {
+    interface _base {
+        id: string;
+        title: string;
+        description: string;
+        thumbnails: string;
+        tags: Array<string>;
+        access_model: "open" | "exclusive" | null;
+        payment_address: string | null;
+        price_winston: string | null;
+        timestamp: string;
+        creator: string;
+
+    }
+    interface Video extends _base {
+        playlist: string | null;
+        views: number;
+        access_model: "open" | "exclusive" | null
+    }
+
+    interface Playlist extends _base {
+        teaser: string;
+        video_list: Array<string>;
+        access_model: "open" | "exclusive"
+    }
+
+    interface User {
+        id: string;
+        video: Array<string>;
+        playlist: Array<string>;
+    }
     interface Window {
         arweaveWallet: {
             /**
