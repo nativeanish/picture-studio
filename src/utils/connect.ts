@@ -29,10 +29,13 @@ const arconnect_connect = async () => {
         } catch (err) {
             try {
                 await window.arweaveWallet.connect([
-                    "ACCESS_ADDRESS",
-                    "SIGN_TRANSACTION",
-                    "SIGNATURE",
-                    "ACCESS_PUBLIC_KEY",
+                    "ACCESS_ADDRESS"
+                    , "ACCESS_PUBLIC_KEY"
+                    , "ACCESS_ALL_ADDRESSES"
+                    , "SIGN_TRANSACTION"
+                    , "ENCRYPT"
+                    , "DECRYPT"
+                    , "SIGNATURE"
                 ])
                 await arconnect_connect()
             } catch (error) {
@@ -57,7 +60,7 @@ const arweave_app_connect = async () => {
     }
 }
 
-const _automatically_connect = async () => {
+export const _automatically_connect = async () => {
     //ArConnect
     window.addEventListener("arweaveWalletLoaded", () => {
         window.arweaveWallet.getActiveAddress().then((e) => {

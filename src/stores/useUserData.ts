@@ -19,7 +19,7 @@ const useUserData = create<State>((set, get) => ({
     async set_video() {
         const videolist = get().user?.video
         if (videolist?.length) {
-            const contract = get_contract()
+            const contract = await get_contract()
             const _video: Array<Video> = []
             for (let a = 0; a < videolist.length; a++) {
                 const data = await contract.viewState<{
@@ -36,7 +36,7 @@ const useUserData = create<State>((set, get) => ({
     async set_playlist() {
         const playlist = get().user?.playlist
         if (playlist?.length) {
-            const contract = get_contract()
+            const contract = await get_contract()
             const _playlist: Array<Playlist> = []
             for (let a = 0; a < playlist.length; a++) {
                 const data = await contract.viewState<{
@@ -51,7 +51,7 @@ const useUserData = create<State>((set, get) => ({
         }
     },
     get_user: async () => {
-        const contract = get_contract()
+        const contract = await get_contract()
         const address = useAddress.getState().address
         const data = await contract.viewState<{
             function: string;

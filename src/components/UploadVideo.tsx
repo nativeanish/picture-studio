@@ -8,7 +8,7 @@ import {
 } from "@nextui-org/react";
 import Upload_V from "./Upload_V";
 import { useState } from "react";
-import { upload_video } from "../utils/uploavideo";
+import { upload_video } from "../utils/upload_video";
 interface argu {
   isOpen: boolean;
   onOpen: () => void;

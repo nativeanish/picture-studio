@@ -1,15 +1,15 @@
-import Arweave from "arweave/web";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
 import { WarpFactory } from "warp-contracts";
-
-export default function get_contract() {
-    const arweave = Arweave.init({
-        host: "43.205.178.185",
-        port: 8080,
-        protocol: "http",
-    })
-    const warp = WarpFactory.forLocal(8080, arweave)
-    const contract = warp.contract("7x2R7DhjTNKlnnJ5LURrTdfSQvxgWoVxwcAcMy0__-c").connect("use_wallet")
+import { InjectedArweaveSigner } from "warp-contracts-plugin-signature";
+import useAddress from "../stores/useAddress";
+export default async function get_contract() {
+    let userSigner = null
+    const address = useAddress.getState().address
+    if (window.arweaveWallet && address) {
+        userSigner = new InjectedArweaveSigner(window.arweaveWallet);
+    }
+    userSigner.getAddress = window.arweaveWallet.getActiveAddress;
+    await userSigner.setPublicKey();
+    const warp = WarpFactory.forTestnet()
+    const contract = warp.contract("xH1EwPiTTqCMOXReK2r4BApDas1EpJf50XY9BRlAPMQ").connect(userSigner)
     return contract
 }
