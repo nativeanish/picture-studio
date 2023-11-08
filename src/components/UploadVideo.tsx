@@ -9,6 +9,7 @@ import {
 import Upload_V from "./Upload_V";
 import { useState } from "react";
 import { upload_video } from "../utils/upload_video";
+import useLoader from "../stores/useLoader";
 interface argu {
   isOpen: boolean;
   onOpen: () => void;
@@ -16,6 +17,8 @@ interface argu {
 }
 function UploadVideo(argu: argu) {
   const [scrollBehavior] = useState<"inside">("inside");
+
+  const _bool = useLoader((state) => state.isOpen);
   return (
     <>
       <Modal
@@ -37,10 +40,19 @@ function UploadVideo(argu: argu) {
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="primary" onClick={() => upload_video()}>
+                <Button
+                  color="primary"
+                  onClick={() => upload_video()}
+                  isDisabled={_bool}
+                >
                   Upload
                 </Button>
-                <Button color="danger" className="pl-4" onPress={onClose}>
+                <Button
+                  color="danger"
+                  className="pl-4"
+                  onPress={onClose}
+                  isDisabled={_bool}
+                >
                   Close
                 </Button>
               </ModalFooter>

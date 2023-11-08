@@ -10,10 +10,19 @@ import {
     isDerivationType,
 } from "./getComandDer";
 import get_contract from "./getWarp";
-import { isNumber } from "./uploadPlaylist";
 import { upload_irys } from "./upload_irys";
+import useLoader from "../stores/useLoader";
 export function upload_video() {
-    _upload_video().then().catch((err) => console.log(err))
+    const setOpen = useAlert.getState().setOpen;
+    const setDescription = useAlert.getState().setDescription;
+    const _setOpen = useLoader.getState().setOpen
+
+    _upload_video().then().catch((err) => {
+        _setOpen(false);
+        setDescription([]);
+        setDescription([`There is error: ${err}`])
+        setOpen(true)
+    })
 }
 async function _upload_video() {
     const _video = useVideo.getState();
@@ -33,6 +42,8 @@ async function _upload_video() {
     const derivation = _video.derivation;
     const _thumbnail_tags: Array<{ name: string, value: string }> = []
     const playlist = _video.selected_playlist;
+    const _setDescription = useLoader.getState().setDescription
+    const _setOpen = useLoader.getState().setOpen
     if (
         title.length &&
         description.length &&
@@ -58,78 +69,98 @@ async function _upload_video() {
                     _tags.push({ name: "Derivation", value: getDerivation(derivation) })
                     if (accesss === "exclusive") {
                         _tags.push({ name: "Access-Model", value: accesss })
-                        if (isNumber(price) || isNumber(price)) {
-                            _tags.push({ name: "License-Fee", value: price });
+                        if (!isNaN(parseFloat(price))) {
+                            _tags.push({ name: "License-Fee", value: String(parseFloat(price) * 1000000000000) });
                             _tags.push({ name: "Currency", value: "Arweave" });
                             _tags.push({ name: "Payment-Address", value: address?.length ? address : "" });
+                            _setDescription("Uploading thumbnails to irys")
+                            _setOpen(true)
                             const thumbnail_id = await upload_irys(thumbnail, "playlist", _thumbnail_tags)
                             if (thumbnail_id?.length) {
                                 _tags.push({ name: "Thumbnail", value: thumbnail_id })
+                                _setDescription("Encrypting the video")
                                 const crypto = await encrypt(video);
+                                _setDescription("Uploading encrypted video to irys")
                                 const e_video = await upload_irys(toBuffer(crypto.data), "video", _tags)
                                 if (e_video?.length) {
-                                    const res = await contract.writeInteraction({ function: "upload_video", title, id: e_video, description, tags, thumbnails: thumbnail_id, access_model: accesss, price_winston: price })
+                                    _setDescription("Writing to Contract")
+                                    const res = await contract.writeInteraction({ function: "upload_video", title, id: e_video, description, tags, thumbnails: thumbnail_id, access_model: accesss, price_winston: String(parseFloat(price) * 1000000000000) })
                                     if (res?.bundlrResponse?.id) {
                                         console.log(res)
                                         console.log(crypto.iv)
                                         console.log(crypto.key)
                                         const iv_string = Buffer.from(crypto.iv).toString('hex')
-
                                         const hash = await generateSHA256Hash(`${e_video}${JSON.stringify(crypto.key)}${iv_string}`)
+                                        _setDescription("Encrypting the keys")
                                         const upload = await axios.post("http://localhost:8080/upload", {
                                             hash: hash, content_id: e_video, key: crypto.key, iv: iv_string
                                         })
                                         if (upload.status === 200) {
-                                            console.log("Uploaded succesful")
+                                            _setOpen(false)
+                                            window.location.reload()
                                         }
                                     } else {
+                                        _setOpen(false)
                                         setDescription([])
                                         setDescription(["Error in write interaction is warp contracts"]);
                                         setOpen(true);
                                     }
                                 }
                             } else {
+                                _setOpen(false)
                                 setDescription([])
                                 setDescription(["Error in upload thumnails"]);
                                 setOpen(true);
                             }
                         } else {
+                            _setOpen(false)
                             setDescription([])
                             setDescription(["Price should be greater than 0"]);
                             setOpen(true);
                         }
                     } else if (accesss === "open") {
                         _tags.push({ name: "Access-Model", value: "open" })
+                        _setOpen(true)
+                        _setDescription("Uploading thumbnails to irys")
                         const thumbnail_id = await upload_irys(thumbnail, "playlist", _thumbnail_tags)
                         if (thumbnail_id?.length) {
                             _tags.push({ name: "Thumbnail", value: thumbnail_id })
+                            _setDescription("Uploading video to irys")
                             const e_video = await upload_irys(Buffer.from(video), "video", _tags)
                             if (e_video?.length) {
                                 const res = await contract.writeInteraction({ function: "upload_video", title, id: e_video, description, tags, thumbnails: thumbnail_id, access_model: accesss })
+                                _setDescription("Writing to Contract")
                                 if (res?.bundlrResponse?.id) {
-                                    console.log(res)
+                                    _setOpen(false)
+                                    window.location.reload()
                                 } else {
+                                    _setOpen(false)
                                     setDescription([])
                                     setDescription(["Error in write intercatons in warp contracts"]);
                                     setOpen(true);
                                 }
                             }
                         } else {
+                            _setOpen(false)
                             setDescription([])
                             setDescription(["Error in upload thumnails"]);
                             setOpen(true);
                         }
                     } else {
+                        _setOpen(false)
                         setDescription([])
                         setDescription(["Access Type is undefined"]);
                         setOpen(true);
                     }
                 } else {
+                    _setOpen(false)
                     setDescription([])
                     setDescription(["Derivation Type is undefined"]);
                     setOpen(true);
                 }
             } else {
+
+                _setOpen(false)
                 setDescription([])
                 setDescription(["Commericial Type is undefined"]);
                 setOpen(true);
@@ -141,58 +172,74 @@ async function _upload_video() {
             if (_playlist?.id) {
                 _tags.push({ name: "Playlist-Id", value: _playlist.id })
                 if (_playlist.access_model === "exclusive") {
+                    _setOpen(true)
+                    _setDescription("Uploading thumbnails to irys")
                     const thumbnail_id = await upload_irys(thumbnail, "playlist", _thumbnail_tags)
                     if (thumbnail_id?.length) {
                         _tags.push({ name: "Thumbnail", value: thumbnail_id })
+                        _setDescription("Encrypting the video")
                         const crypto = await encrypt(video);
+                        _setDescription("Uploading encrypted video to irys")
                         const e_video = await upload_irys(toBuffer(crypto.data), "video", _tags)
                         if (e_video?.length) {
+                            _setDescription("Writing to Contract")
                             const res = await contract.writeInteraction({ function: "upload_video", playlist: _playlist.id, title, description, tags, id: e_video, thumbnails: thumbnail_id, })
                             if (res?.bundlrResponse?.id) {
                                 console.log(res)
                                 console.log(crypto.iv)
                                 console.log(crypto.key)
                                 const iv_string = Buffer.from(crypto.iv).toString("hex")
-
+                                _setDescription("Encrypting the keys")
                                 const hash = await generateSHA256Hash(`${e_video}${JSON.stringify(crypto.key)}${iv_string}`)
+                                _setDescription("Uploading encrypted video to irys")
                                 const upload = await axios.post("http://localhost:8080/upload", {
                                     hash: hash, content_id: e_video, key: crypto.key, iv: iv_string
                                 })
                                 if (upload.status === 200) {
-                                    console.log("Uploaded succesful")
+                                    _setOpen(false)
+                                    window.location.reload()
                                 }
                             } else {
+                                _setOpen(false)
                                 setDescription([])
                                 setDescription(["Error in write interaction is warp contracts"]);
                                 setOpen(true);
                             }
                         }
                     } else {
+                        _setOpen(false)
                         setDescription([])
                         setDescription(["Error in upload thumnails"]);
                         setOpen(true);
                     }
                 } else if (_playlist.access_model === "open") {
+                    _setDescription("Uploading thumbnails to irys")
                     const thumbnail_id = await upload_irys(thumbnail, "playlist", _thumbnail_tags)
                     if (thumbnail_id?.length) {
                         _tags.push({ name: "Thumbnail", value: thumbnail_id })
+                        _setDescription("Uploading video to irys")
                         const e_video = await upload_irys(Buffer.from(video), "video", _tags)
                         if (e_video?.length) {
+                            _setDescription("Writing to Contract")
                             const res = await contract.writeInteraction({ function: "upload_video", playlist: _playlist.id, title, description, tags, id: e_video, thumbnails: thumbnail_id, })
                             if (res?.bundlrResponse?.id) {
-                                console.log(res)
+                                window.location.reload()
                             } else {
+                                _setOpen(false)
                                 setDescription([])
                                 setDescription(["Error in write interaction is warp contracts"]);
                                 setOpen(true);
                             }
                         }
                     } else {
+                        _setOpen(false)
                         setDescription([])
                         setDescription(["Error in upload thumnails"]);
                         setOpen(true);
                     }
                 } else {
+
+                    _setOpen(false)
                     setDescription([])
                     setDescription(["Existed Playlist Model is undefined"]);
                     setOpen(true);
@@ -214,6 +261,7 @@ async function _upload_video() {
                 if (!thumbnail.length) {
                     error.push("Thumbnail is missing");
                 }
+                _setOpen(false)
                 setDescription([])
                 setDescription(error);
                 setOpen(true);

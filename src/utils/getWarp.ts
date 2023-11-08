@@ -13,3 +13,8 @@ export default async function get_contract() {
     const contract = warp.contract("xH1EwPiTTqCMOXReK2r4BApDas1EpJf50XY9BRlAPMQ").connect(userSigner)
     return contract
 }
+export async function get_dummy_contract() {
+    const warp = WarpFactory.forTestnet()
+    const contract = warp.contract("xH1EwPiTTqCMOXReK2r4BApDas1EpJf50XY9BRlAPMQ")
+    return contract
+}

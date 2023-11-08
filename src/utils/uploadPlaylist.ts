@@ -1,12 +1,21 @@
 import useAddress from "../stores/useAddress"
 import useAlert from "../stores/useAlert"
+import useLoader from "../stores/useLoader"
 import usePlaylist from "../stores/usePlaylist"
 import useUserData from "../stores/useUserData"
 import { getCommercial, getDerivation } from "./getComandDer"
 import get_contract from "./getWarp"
 import { upload_irys } from "./upload_irys"
 export const uploadPlaylist = () => {
-    _uploadPlaylist().then().catch((err) => console.log(err))
+    const setOpen = useAlert.getState().setOpen;
+    const setDescription = useAlert.getState().setDescription;
+    const _setOpen = useLoader.getState().setOpen
+    _uploadPlaylist().then().catch((err) => {
+        _setOpen(false);
+        setDescription([]);
+        setDescription([`There is error: ${err}`])
+        setOpen(true)
+    })
 }
 const _uploadPlaylist = async () => {
     const title = usePlaylist.getState().title
@@ -22,6 +31,8 @@ const _uploadPlaylist = async () => {
     const derivation = getDerivation(usePlaylist.getState().derivation)
     const address = useAddress.getState().address
     const set_playlist = useUserData.getState().set_playlist
+    const _setopen = useLoader.getState().setOpen
+    const _setDescription = useLoader.getState().setDescription
     const _tags = []
     if (title.length && description.length && tags.length && thumbnail.length) {
         _tags.push({ name: "Content-type", value: "base64" })
@@ -33,11 +44,12 @@ const _uploadPlaylist = async () => {
         _tags.push({ name: "Derivation", value: derivation })
         _tags.push({ name: "Thumbnail", value: "self" })
         if (access === "exclusive") {
-            if ((isFloat(price) || isNumber(price)) && Number(price) > 0) {
-                _tags.push({ name: "License-Fee", value: price })
+            if (!isNaN(parseFloat(price))) {
+                _tags.push({ name: "License-Fee", value: String(parseFloat(price) * 1000000000000) })
                 _tags.push({ name: "Currency", value: "Arweave" })
                 _tags.push({ name: "Payment-Address", value: address?.length ? address : "" })
             } else {
+                _setopen(false)
                 set_open(true);
                 setTitle("Warning")
                 setDescription([])
@@ -45,8 +57,28 @@ const _uploadPlaylist = async () => {
                 return;
             }
         } else if (access === "open") {
-            //
+            try {
+                _setopen(true)
+                _setDescription("Uploading Thumbnails to irys")
+                const id = await upload_irys(thumbnail, "playlist", _tags);
+                if (id?.length) {
+                    const contract = await get_contract()
+                    _setDescription("Writing to contract")
+                    const data = await contract.writeInteraction({ function: "create_playlist", title, id: id, description, tags, access_model: access, thumbnails: id })
+                    if (data?.bundlrResponse?.id) {
+                        await set_playlist()
+                        _setopen(false)
+                        return;
+                    }
+                }
+            } catch (err) {
+                _setopen(false)
+                setTitle("Error");
+                setDescription([])
+                setDescription([`There is an error: ${err}`])
+            }
         } else {
+            _setopen(false)
             set_open(true);
             setTitle("Warning")
             setDescription([])
@@ -54,15 +86,21 @@ const _uploadPlaylist = async () => {
             return;
         }
         try {
+            _setopen(true)
+            _setDescription("Uploading Thumbnails to irys")
             const id = await upload_irys(thumbnail, "playlist", _tags);
             if (id?.length) {
                 const contract = await get_contract()
                 if (access === "exclusive") {
-                    const data = await contract.writeInteraction({ function: "create_playlist", title: title, id: id, description: description, tags: tags, access_model: access, thumbnails: id, price_winston: price })
+                    _setDescription("Writing to contract")
+                    const data = await contract.writeInteraction({ function: "create_playlist", title: title, id: id, description: description, tags: tags, access_model: access, thumbnails: id, price_winston: String(parseFloat(price) * 1000000000000) })
                     if (data?.bundlrResponse?.id) {
+                        _setopen(false)
                         await set_playlist()
                         return;
                     } else {
+
+                        _setopen(false)
                         set_open(true);
                         setTitle("Error");
                         setDescription([])
@@ -70,11 +108,15 @@ const _uploadPlaylist = async () => {
                         return;
                     }
                 } else {
+                    _setDescription("Writing to contract")
                     const data = await contract.writeInteraction({ function: "create_playlist", title: title, id: id, description: description, tags: tags, access_model: "open", thumbnails: id })
                     if (data?.bundlrResponse?.id) {
+                        _setopen(false)
                         await set_playlist()
                         return;
                     } else {
+
+                        _setopen(false)
                         set_open(true);
                         setTitle("Error");
                         setDescription([])
@@ -83,6 +125,7 @@ const _uploadPlaylist = async () => {
                     }
                 }
             } else {
+                _setopen(false)
                 set_open(true);
                 setTitle("Error");
                 setDescription([])
@@ -91,6 +134,7 @@ const _uploadPlaylist = async () => {
             }
         } catch (err) {
             console.log(err)
+            _setopen(false)
             set_open(true);
             setTitle("Error");
             setDescription([])
@@ -112,19 +156,13 @@ const _uploadPlaylist = async () => {
         if (!thumbnail.length) {
             dar.push("Thumbnail is Missing. Upload an Image")
         }
-        if (access === "exclusive" && !((Number(price) > 0))) {
+        if (access === "exclusive" && isNaN(parseFloat(price))) {
             dar.push("Add Price in Number")
         }
+        _setopen(false)
         setTitle("Warning")
         setDescription([])
         setDescription(dar)
         set_open(true)
     }
-}
-export function isNumber(input: string) {
-    return /^\d+$/.test(input);
-}
-
-export function isFloat(input: string) {
-    return /^\d+\.\d+$/.test(input);
 }

@@ -1,3 +1,42 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+.border-gradient {
+  border-image: linear-gradient(
+    to right,
+    #ff5f6d,
+    #ffc371,
+    #85d8ce,
+    #008b8b,
+    #c71585,
+    #6495ed,
+    #3cb371,
+    #ffd700,
+    #ff6347,
+    #778899,
+    #ba55d3,
+    #87cefa
+  );
+  border-image-slice: 1;
+}
+.gradient-text {
+  background: linear-gradient(
+    to right,
+    #ff5f6d,
+    #ffc371,
+    #85d8ce,
+    #008b8b,
+    #c71585,
+    #6495ed,
+    #3cb371,
+    #ffd700,
+    #ff6347,
+    #778899,
+    #ba55d3,
+    #87cefa
+  );
+  -webkit-background-clip: text; /* For Safari */
+  -webkit-text-fill-color: transparent; /* For Safari */
+  background-clip: text;
+  color: transparent;
+}

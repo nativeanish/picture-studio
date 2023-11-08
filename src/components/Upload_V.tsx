@@ -11,13 +11,14 @@ import {
 } from "@nextui-org/react";
 import useVideo from "../stores/useVideo";
 import { ChangeEvent, useEffect, useState } from "react";
-import { Player } from "./Video_player";
 import { AiFillDelete } from "react-icons/ai";
 import { IoNotifications } from "react-icons/io5";
 import PlaylistModal from "./PlaylistModal";
 import usePlaylist from "../stores/usePlaylist";
 import useAddress from "../stores/useAddress";
 import Arweave from "../images/Arweave-app";
+import useAlert from "../stores/useAlert";
+import VideoPlayer from "./VideoPlayer";
 function Upload_V() {
   const unencrypted_video = useVideo((state) => state.unecrypted_video);
   const set_unencrypted_video = useVideo((state) => state.set_unecrypted_video);
@@ -39,6 +40,8 @@ function Upload_V() {
   const set_selected_playlist = useVideo(
     (state) => state.set_selected_playlist
   );
+  const setOpen = useAlert((state) => state.setOpen);
+  const setDes = useAlert((state) => state.setDescription);
   const selected_playlist = useVideo((state) => state.selected_playlist);
   useEffect(() => {
     if (unencrypted_video?.length && video_type?.length) {
@@ -64,7 +67,9 @@ function Upload_V() {
         });
         reader.readAsDataURL(e.target.files[0]);
       } else {
-        console.log("YOu have not uploaded video");
+        setDes([]);
+        setDes(["Only MP4 or WEBM is only supported"]);
+        setOpen(true);
       }
     }
   };
@@ -107,7 +112,9 @@ function Upload_V() {
         });
         reader.readAsDataURL(e.target.files[0]);
       } else {
-        console.log("YOu have not uploaded image");
+        setDes([]);
+        setDes(["Only PNG, SVG, JPEG or JPG is only supported"]);
+        setOpen(true);
       }
     }
   };
@@ -123,7 +130,7 @@ function Upload_V() {
                   video_type?.length &&
                   unencrypted_video?.length ? (
                     <div className="flex flex-col space-y-4">
-                      <Player url={url} />
+                      <VideoPlayer url={url} />
                       <Button
                         startContent={<AiFillDelete />}
                         color="danger"
@@ -217,6 +224,7 @@ function Upload_V() {
                                 type="file"
                                 className="hidden"
                                 onChange={upload_thumbnail}
+                                accept="image/*"
                               />
                             </label>
                           </div>
@@ -454,6 +462,7 @@ function Upload_V() {
                         type="file"
                         className="hidden"
                         onChange={upload}
+                        accept="video/*"
                       />
                     </label>
                   )}

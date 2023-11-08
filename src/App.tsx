@@ -3,6 +3,9 @@ import { NextUIProvider } from "@nextui-org/react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Studio from "./pages/Studio";
 import Alert from "./components/Alert";
+import Video from "./pages/Video";
+import PlaylistDisplay from "./pages/PlaylistDisplay";
+import PlaylistVideo from "./pages/PlaylistVideo";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -11,6 +14,18 @@ const router = createBrowserRouter([
   {
     path: "/studio",
     element: <Studio />,
+  },
+  {
+    path: "/v/:id",
+    element: <Video />,
+  },
+  {
+    path: "/p/:id",
+    element: <PlaylistDisplay />,
+  },
+  {
+    path: "/p/:id/v/:v_id",
+    element: <PlaylistVideo />,
   },
 ]);
 function App() {

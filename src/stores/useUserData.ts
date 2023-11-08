@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import get_contract from "../utils/getWarp";
 import useAddress from "./useAddress";
+import useLoader from "./useLoader";
 type _u_return = { success: false; data: string } | { success: true, data: User }
 type _v_return = { success: false; data: string } | { success: true, data: Video }
 type _p_return = { success: false; data: string } | { success: true, data: Playlist }
@@ -67,9 +68,16 @@ const useUserData = create<State>((set, get) => ({
     },
     user: null,
     async _get() {
+        const setOpen = useLoader.getState().setOpen
+        const description = useLoader.getState().setDescription
+        description("Getting the User Details")
+        setOpen(true)
         await get().get_user()
+        description("Getting Video list")
         await get().set_video()
+        description("Getting Playlist")
         await get().set_playlist()
+        setOpen(false)
     },
 }))
 export default useUserData

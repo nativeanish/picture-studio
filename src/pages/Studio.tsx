@@ -9,8 +9,9 @@ import video from "../images/Video_Upload.svg";
 import { RiVideoUploadFill } from "react-icons/ri";
 import UploadVideo from "../components/UploadVideo";
 import useVideo from "../stores/useVideo";
-import Playlist from "../components/Playlist";
 import useUserData from "../stores/useUserData";
+import Loader from "../components/Loader";
+import DataView from "../components/DataView";
 function Studio() {
   const address = useAddress((state) => state.address);
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ function Studio() {
     <>
       <NavBar />
       <div className="flex justify-center mt-16">
+        <Loader />
         <div className="w-80 p-4 rounded">
           <div className="space-x-4">
             <Image src={video} />
@@ -56,7 +58,7 @@ function Studio() {
       <div className="pt-4">
         <Divider />
         <div>
-          <Playlist />
+          <DataView />
         </div>
       </div>
     </>

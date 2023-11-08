@@ -17,6 +17,8 @@ import usePlaylist from "../stores/usePlaylist";
 import Arweave from "../images/Arweave-app";
 import { uploadPlaylist } from "../utils/uploadPlaylist";
 import { IoNotifications } from "react-icons/io5";
+import useAlert from "../stores/useAlert";
+import useLoader from "../stores/useLoader";
 interface argu {
   isOpen: boolean;
   onOpen: () => void;
@@ -40,6 +42,9 @@ function PlaylistModal(argu: argu) {
   const derivation = usePlaylist((state) => state.derivation);
   const setDerivation = usePlaylist((state) => state.setDerivation);
   const [scrollBehavior] = useState<"inside">("inside");
+  const setOpen = useAlert((state) => state.setOpen);
+  const set_Description = useAlert((state) => state.setDescription);
+  const _bool = useLoader((state) => state.isOpen);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleKeyDown = (e: any) => {
     if (e.key === "Enter") {
@@ -69,7 +74,9 @@ function PlaylistModal(argu: argu) {
         });
         reader.readAsDataURL(e.target.files[0]);
       } else {
-        console.log("YOu have not uploaded image");
+        setOpen(true);
+        set_Description([]);
+        set_Description(["PNG, JPG, JPEG or SVG is only supported"]);
       }
     }
   };
@@ -314,10 +321,14 @@ function PlaylistModal(argu: argu) {
                   </div>
                 </ModalBody>
                 <ModalFooter>
-                  <Button color="primary" onClick={() => uploadPlaylist()}>
+                  <Button
+                    color="primary"
+                    onClick={() => uploadPlaylist()}
+                    isDisabled={_bool}
+                  >
                     Upload
                   </Button>
-                  <Button color="danger" onPress={onClose}>
+                  <Button color="danger" onPress={onClose} isDisabled={_bool}>
                     Close
                   </Button>
                 </ModalFooter>
