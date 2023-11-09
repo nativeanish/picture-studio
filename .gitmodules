@@ -1,3 +1,6 @@
 [submodule "contract"]
 	path = contract
 	url = https://github.com/nativeanish/v-contract.git
+[submodule "server"]
+	path = server
+	url = https://github.com/nativeanish/server
