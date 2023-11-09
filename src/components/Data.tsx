@@ -1,6 +1,7 @@
 import { Button } from "@nextui-org/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface argu {
   thumbnail: string;
@@ -24,6 +25,7 @@ function Data(argu: argu) {
         setThumb(data.data);
       });
   }, [argu.thumbnail]);
+  const naviagte = useNavigate();
   return (
     <>
       <tr key={argu.id}>
@@ -38,7 +40,19 @@ function Data(argu: argu) {
         <td className="border px-4 py-2">{argu.description}</td>
         <td className="border px-4 py-2">{formattedDate}</td>
         <td className="border px-4 py-2">
-          <Button color="primary">View</Button>
+          <Button
+            color="primary"
+            onClick={() => {
+              if (argu.type === "video") {
+                naviagte(`/v/${argu.id}`);
+              }
+              if (argu.type === "playlist") {
+                naviagte(`/p/${argu.id}`);
+              }
+            }}
+          >
+            View
+          </Button>
         </td>
       </tr>
     </>

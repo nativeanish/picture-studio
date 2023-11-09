@@ -132,13 +132,13 @@ export default function NavBar() {
                         >
                           Connect with arconnect
                         </DropdownItem>
-                        <DropdownItem
+                        {/* <DropdownItem
                           showDivider={true}
                           key="arweave.app"
                           endContent={<Arweave />}
                         >
                           Connect with arweave.app
-                        </DropdownItem>
+                        </DropdownItem> */}
                       </DropdownMenu>
                     ) : null}
                   </Dropdown>

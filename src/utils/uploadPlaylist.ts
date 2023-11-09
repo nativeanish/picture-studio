@@ -65,11 +65,9 @@ const _uploadPlaylist = async () => {
                     const contract = await get_contract()
                     _setDescription("Writing to contract")
                     const data = await contract.writeInteraction({ function: "create_playlist", title, id: id, description, tags, access_model: access, thumbnails: id })
-                    if (data?.bundlrResponse?.id) {
-                        await set_playlist()
-                        _setopen(false)
-                        return;
-                    }
+                    // if (data?.bundlrResponse?.id) {
+                    window.location.reload()
+                    // }
                 }
             } catch (err) {
                 _setopen(false)
@@ -94,35 +92,37 @@ const _uploadPlaylist = async () => {
                 if (access === "exclusive") {
                     _setDescription("Writing to contract")
                     const data = await contract.writeInteraction({ function: "create_playlist", title: title, id: id, description: description, tags: tags, access_model: access, thumbnails: id, price_winston: String(parseFloat(price) * 1000000000000) })
-                    if (data?.bundlrResponse?.id) {
-                        _setopen(false)
-                        await set_playlist()
-                        return;
-                    } else {
+                    // if (data?.bundlrResponse?.id) {
+                    window.location.reload()
+                    _setopen(false)
+                    await set_playlist()
+                    return;
+                    // } else {
 
-                        _setopen(false)
-                        set_open(true);
-                        setTitle("Error");
-                        setDescription([])
-                        setDescription(["There is error in interaction with warp contracts"])
-                        return;
-                    }
+                    //     _setopen(false)
+                    //     set_open(true);
+                    //     setTitle("Error");
+                    //     setDescription([])
+                    //     setDescription(["There is error in interaction with warp contracts"])
+                    //     return;
+                    // }
                 } else {
                     _setDescription("Writing to contract")
                     const data = await contract.writeInteraction({ function: "create_playlist", title: title, id: id, description: description, tags: tags, access_model: "open", thumbnails: id })
-                    if (data?.bundlrResponse?.id) {
-                        _setopen(false)
-                        await set_playlist()
-                        return;
-                    } else {
+                    // if (data?.bundlrResponse?.id) {
+                    window.location.reload()
+                    _setopen(false)
+                    await set_playlist()
+                    return;
+                    // } else {
 
-                        _setopen(false)
-                        set_open(true);
-                        setTitle("Error");
-                        setDescription([])
-                        setDescription(["There is error in interaction with warp contracts"])
-                        return;
-                    }
+                    //     _setopen(false)
+                    //     set_open(true);
+                    //     setTitle("Error");
+                    //     setDescription([])
+                    //     setDescription(["There is error in interaction with warp contracts"])
+                    //     return;
+                    // }
                 }
             } else {
                 _setopen(false)

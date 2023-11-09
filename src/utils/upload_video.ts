@@ -81,30 +81,29 @@ async function _upload_video() {
                                 _setDescription("Encrypting the video")
                                 const crypto = await encrypt(video);
                                 _setDescription("Uploading encrypted video to irys")
-                                const e_video = await upload_irys(toBuffer(crypto.data), "video", _tags)
+                                const e_video = await upload_irys(arrayBufferToBase64(crypto.data), "video", _tags)
                                 if (e_video?.length) {
                                     _setDescription("Writing to Contract")
                                     const res = await contract.writeInteraction({ function: "upload_video", title, id: e_video, description, tags, thumbnails: thumbnail_id, access_model: accesss, price_winston: String(parseFloat(price) * 1000000000000) })
-                                    if (res?.bundlrResponse?.id) {
-                                        console.log(res)
-                                        console.log(crypto.iv)
-                                        console.log(crypto.key)
-                                        const iv_string = Buffer.from(crypto.iv).toString('hex')
-                                        const hash = await generateSHA256Hash(`${e_video}${JSON.stringify(crypto.key)}${iv_string}`)
-                                        _setDescription("Encrypting the keys")
-                                        const upload = await axios.post("http://localhost:8080/upload", {
-                                            hash: hash, content_id: e_video, key: crypto.key, iv: iv_string
-                                        })
-                                        if (upload.status === 200) {
-                                            _setOpen(false)
-                                            window.location.reload()
-                                        }
-                                    } else {
+                                    // if (res?.bundlrResponse?.id) {
+                                    console.log(res)
+                                    console.log(crypto.iv)
+                                    console.log(crypto.key)
+                                    const iv_string = Buffer.from(crypto.iv).toString('hex')
+                                    const hash = await generateSHA256Hash(`${e_video}${JSON.stringify(crypto.key)}${iv_string}`)
+                                    _setDescription("Encrypting the keys")
+                                    const upload = await axios.post("http://localhost:8080/upload", {
+                                        hash: hash, content_id: e_video, key: crypto.key, iv: iv_string
+                                    })
+                                    if (upload.status === 200) {
                                         _setOpen(false)
-                                        setDescription([])
-                                        setDescription(["Error in write interaction is warp contracts"]);
-                                        setOpen(true);
                                     }
+                                    // } else {
+                                    //     _setOpen(false)
+                                    //     setDescription([])
+                                    //     setDescription(["Error in write interaction is warp contracts"]);
+                                    //     setOpen(true);
+                                    // }
                                 }
                             } else {
                                 _setOpen(false)
@@ -130,15 +129,15 @@ async function _upload_video() {
                             if (e_video?.length) {
                                 const res = await contract.writeInteraction({ function: "upload_video", title, id: e_video, description, tags, thumbnails: thumbnail_id, access_model: accesss })
                                 _setDescription("Writing to Contract")
-                                if (res?.bundlrResponse?.id) {
-                                    _setOpen(false)
-                                    window.location.reload()
-                                } else {
-                                    _setOpen(false)
-                                    setDescription([])
-                                    setDescription(["Error in write intercatons in warp contracts"]);
-                                    setOpen(true);
-                                }
+                                // if (res?.bundlrResponse?.id) {
+                                _setOpen(false)
+                                window.location.reload()
+                                // } else {
+                                //     _setOpen(false)
+                                //     setDescription([])
+                                //     setDescription(["Error in write intercatons in warp contracts"]);
+                                //     setOpen(true);
+                                // }
                             }
                         } else {
                             _setOpen(false)
@@ -180,31 +179,31 @@ async function _upload_video() {
                         _setDescription("Encrypting the video")
                         const crypto = await encrypt(video);
                         _setDescription("Uploading encrypted video to irys")
-                        const e_video = await upload_irys(toBuffer(crypto.data), "video", _tags)
+                        const e_video = await upload_irys(arrayBufferToBase64(crypto.data), "video", _tags)
                         if (e_video?.length) {
                             _setDescription("Writing to Contract")
                             const res = await contract.writeInteraction({ function: "upload_video", playlist: _playlist.id, title, description, tags, id: e_video, thumbnails: thumbnail_id, })
-                            if (res?.bundlrResponse?.id) {
-                                console.log(res)
-                                console.log(crypto.iv)
-                                console.log(crypto.key)
-                                const iv_string = Buffer.from(crypto.iv).toString("hex")
-                                _setDescription("Encrypting the keys")
-                                const hash = await generateSHA256Hash(`${e_video}${JSON.stringify(crypto.key)}${iv_string}`)
-                                _setDescription("Uploading encrypted video to irys")
-                                const upload = await axios.post("http://localhost:8080/upload", {
-                                    hash: hash, content_id: e_video, key: crypto.key, iv: iv_string
-                                })
-                                if (upload.status === 200) {
-                                    _setOpen(false)
-                                    window.location.reload()
-                                }
-                            } else {
+                            // if (res?.bundlrResponse?.id) {
+                            console.log(res)
+                            console.log(crypto.iv)
+                            console.log(crypto.key)
+                            const iv_string = Buffer.from(crypto.iv).toString("hex")
+                            _setDescription("Encrypting the keys")
+                            const hash = await generateSHA256Hash(`${e_video}${JSON.stringify(crypto.key)}${iv_string}`)
+                            _setDescription("Uploading encrypted video to irys")
+                            const upload = await axios.post("http://localhost:8080/upload", {
+                                hash: hash, content_id: e_video, key: crypto.key, iv: iv_string
+                            })
+                            if (upload.status === 200) {
                                 _setOpen(false)
-                                setDescription([])
-                                setDescription(["Error in write interaction is warp contracts"]);
-                                setOpen(true);
+                                window.location.reload()
                             }
+                            // } else {
+                            //     _setOpen(false)
+                            //     setDescription([])
+                            //     setDescription(["Error in write interaction is warp contracts"]);
+                            //     setOpen(true);
+                            // }
                         }
                     } else {
                         _setOpen(false)
@@ -222,14 +221,14 @@ async function _upload_video() {
                         if (e_video?.length) {
                             _setDescription("Writing to Contract")
                             const res = await contract.writeInteraction({ function: "upload_video", playlist: _playlist.id, title, description, tags, id: e_video, thumbnails: thumbnail_id, })
-                            if (res?.bundlrResponse?.id) {
-                                window.location.reload()
-                            } else {
-                                _setOpen(false)
-                                setDescription([])
-                                setDescription(["Error in write interaction is warp contracts"]);
-                                setOpen(true);
-                            }
+                            // if (res?.bundlrResponse?.id) {
+                            window.location.reload()
+                            // } else {
+                            //     _setOpen(false)
+                            //     setDescription([])
+                            //     setDescription(["Error in write interaction is warp contracts"]);
+                            //     setOpen(true);
+                            // }
                         }
                     } else {
                         _setOpen(false)
@@ -294,6 +293,8 @@ export async function encrypt(_data: string): Promise<{
         data
     );
     const json_key = await window.crypto.subtle.exportKey("jwk", key);
+    console.log(data)
+    console.log(_encrypted_data)
     return { iv: iv, key: json_key, data: _encrypted_data };
 }
 export function toBuffer(arrayBuffer: ArrayBuffer) {
@@ -311,4 +312,10 @@ async function generateSHA256Hash(data: string) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
     return hashHex;
+}
+export function arrayBufferToBase64(arrayBuffer: ArrayBuffer) {
+    const uint8Array = new Uint8Array(arrayBuffer);
+    const string = uint8Array.reduce((data, byte) => data + String.fromCharCode(byte), '');
+    const base64String = btoa(string);
+    return base64String;
 }

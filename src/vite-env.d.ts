@@ -36,6 +36,15 @@ declare global {
         video: Array<string>;
         playlist: Array<string>;
     }
+
+    interface State {
+        video: Array<Video>
+        playlist: Array<Playlist>
+        user: Array<User>
+        bought: Array<{ type: "video" | "playlist", id: string, user: string }>
+        encrypted_db: Array<{ id: string, content_id: string, writer: string, iv1: string, iv2: string }>
+    }
+
     interface Window {
         arweaveWallet: {
             /**

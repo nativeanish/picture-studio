@@ -3,17 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import Query from "@irys/query";
 import axios from "axios";
-import { get_dummy_contract } from "../utils/getWarp";
+import get_contract, { get_dummy_contract } from "../utils/getWarp";
 import VideoPlayer from "../components/VideoPlayer";
-import { Accordion, AccordionItem, Chip } from "@nextui-org/react";
-import { BiTime } from "react-icons/bi";
-import { GrView } from "react-icons/gr";
-import { BiSolidUserCircle } from "react-icons/bi";
-import { AiOutlineDollarCircle } from "react-icons/ai";
-import { FaPercentage } from "react-icons/fa";
+import { Accordion, AccordionItem, Button } from "@nextui-org/react";
 import useAlert from "../stores/useAlert";
+import StartCom from "../components/StartCom";
+import useAddress from "../stores/useAddress";
+import { decrypt } from "../utils/crypto";
 type _re = { success: false; data: string } | { success: true; data: Video };
-
 function Video() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -33,6 +30,9 @@ function Video() {
   const _setDescription = useAlert((state) => state.setDescription);
   const setOpen = useAlert((state) => state.setOpen);
   const _setTitle = useAlert((state) => state.setTile);
+  const address = useAddress((state) => state.address);
+  const [bought, set_bought] = useState<boolean | null>(null);
+  const [price, setPrice] = useState<string>("");
   const search = useCallback(
     async (id: string) => {
       const query = new Query({ url: "https://node2.irys.xyz/graphql" });
@@ -102,6 +102,69 @@ function Video() {
     },
     [_setDescription, _setTitle, setOpen]
   );
+  const check_and_get = useCallback(async (id: string, address: string) => {
+    const contract = await get_dummy_contract();
+    const state = (await contract.readState()).cachedValue.state.bought;
+    const filter = state.filter(
+      (e) => e.id === id && e.type === "video" && e.user === address
+    );
+    if (filter.length) {
+      set_bought(true);
+      const data = await axios.get(
+        `http://localhost:8080/get/${id}/${address}`,
+        { maxRedirects: 4 }
+      );
+      if (data.data) {
+        const _video = await axios.get(`https://gateway.irys.xyz/${id}`, {
+          maxRedirects: 4,
+        });
+        const ___video = await decrypt(
+          _video.data,
+          JSON.parse(data.data.key),
+          data.data.iv
+        );
+        setVideo(___video);
+      }
+    } else {
+      set_bought(false);
+      const query = new Query({ url: "https://node2.irys.xyz/graphql" });
+      const data = await query.search("irys:transactions").ids([id]);
+      const _data = data[0].tags.find((e) => e.name === "License-Fee");
+      if (_data?.value.length) {
+        setPrice(_data.value);
+      }
+    }
+  }, []);
+  const buy = async () => {
+    if (address?.length && id?.length) {
+      const query = new Query({ url: "https://node2.irys.xyz/graphql" });
+      const data = await query.search("irys:transactions").ids([id]);
+      const tags = data[0].tags;
+      const licensefee = tags.find((e) => e.name === "License-Fee");
+      const paymentaddress = tags.find((e) => e.name === "Payment-Address");
+      if (licensefee?.value.length && paymentaddress?.value.length) {
+        const contract = await get_contract();
+        try {
+          const data = await contract.writeInteraction(
+            { function: "buy", id: id, type: "video" },
+            {
+              transfer: {
+                target: paymentaddress.value,
+                winstonQty: licensefee.value,
+              },
+            }
+          );
+          if (data?.interactionTx.id) {
+            window.location.reload();
+          }
+        } catch (err) {
+          _setTitle("Error");
+          _setDescription([`Error Happened: ${err}`]);
+          setOpen(true);
+        }
+      }
+    }
+  };
   useEffect(() => {
     if (id?.length) {
       search(id);
@@ -120,9 +183,17 @@ function Video() {
       setUrl(videoURL);
     }
     if (access_model === "exclusive") {
-      _setDescription([]);
-      _setTitle("Warning");
-      setOpen(true);
+      if (!address?.length) {
+        _setTitle("Warning");
+        _setDescription([]);
+        _setDescription(["Please Login to Watch this video"]);
+        setOpen(true);
+        return;
+      } else {
+        if (id && address.length) {
+          check_and_get(id, address);
+        }
+      }
     }
   }, [
     id,
@@ -133,6 +204,8 @@ function Video() {
     _setTitle,
     setOpen,
     search,
+    address,
+    check_and_get,
   ]);
 
   return (
@@ -140,11 +213,31 @@ function Video() {
       <NavBar />
       <div className="flex flex-col">
         <div className="items-center justify-center flex flex-col">
-          <div className="aspect-video w-1/2">
-            <VideoPlayer url={url} thumbnail={thumbnail} />
-          </div>
+          {access_model === "exclusive" && bought === false ? (
+            <>
+              <Button
+                onClick={() =>
+                  buy()
+                    .then()
+                    .catch((err) => console.log(err))
+                }
+                className="mt-3"
+                color="danger"
+                size="lg"
+              >
+                Buy this video @{" "}
+                {price.length ? (
+                  <>{String(Number(price) / 1000000000000)} AR</>
+                ) : null}
+              </Button>
+            </>
+          ) : (
+            <div className="aspect-video w-1/2">
+              <VideoPlayer url={url} thumbnail={thumbnail} />
+            </div>
+          )}
         </div>
-        <div className="items-center flex justify-center">
+        <div className="items-center flex justify-center mt-2">
           <div className="mt-2 justify-start space-y-2 flex flex-col items-center w-1/2">
             <h1 className="text-4xl font-bold ">{title}</h1>
             <Accordion variant="bordered" className="mt-3">
@@ -174,35 +267,3 @@ function Video() {
 }
 
 export default Video;
-interface arg {
-  view: string;
-  time: string;
-  creator: string;
-  commerical: string;
-  derv: string;
-}
-function StartCom(arg: arg) {
-  return (
-    <div className="flex flex-col space-y-3">
-      <div className="flex flex-row space-x-2">
-        <Chip color="warning" startContent={<BiTime />}>
-          {new Date(Number(arg.time) * 1000).toLocaleString()}
-        </Chip>
-        <Chip color="secondary" startContent={<GrView />} radius="sm">
-          {arg.view}{" "}
-        </Chip>
-        <Chip color="danger" startContent={<BiSolidUserCircle />}>
-          {arg.creator}
-        </Chip>
-      </div>
-      <div className="flex flex-row space-x-2">
-        <Chip color="primary" startContent={<AiOutlineDollarCircle />}>
-          Commerical-Use: {arg.commerical}
-        </Chip>
-        <Chip color="success" startContent={<FaPercentage />}>
-          Derivation: {arg.derv}
-        </Chip>
-      </div>
-    </div>
-  );
-}
