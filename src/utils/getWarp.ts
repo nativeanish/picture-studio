@@ -17,11 +17,11 @@ export default async function get_contract() {
     // userSigner.getAddress = window.arweaveWallet.getActiveAddress;
     // await userSigner.setPublicKey();
     // const warp = WarpFactory.forTestnet()
-    const contract = warp.contract<State>("ho2SbiQPHVB8enCQBU3Nh_qJtsK2iJ5Pi9G7nXoO5j0").connect("use_wallet")
+    const contract = warp.contract<State>("gmURir_NTZAVNeGGmTflnkhV2XyMfRyUomi576SXipQ").connect("use_wallet")
     return contract
 }
 export async function get_dummy_contract() {
     // const warp = WarpFactory.forTestnet()
-    const contract = warp.contract<State>("ho2SbiQPHVB8enCQBU3Nh_qJtsK2iJ5Pi9G7nXoO5j0")
+    const contract = warp.contract<State>("gmURir_NTZAVNeGGmTflnkhV2XyMfRyUomi576SXipQ")
     return contract
 }
