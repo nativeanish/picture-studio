@@ -1,6 +1,6 @@
 import { WarpFactory } from "warp-contracts";
-import { InjectedArweaveSigner } from "warp-contracts-plugin-signature";
-import useAddress from "../stores/useAddress";
+// import { InjectedArweaveSigner } from "warp-contracts-plugin-signature";
+// import useAddress from "../stores/useAddress";
 import Arweave from "arweave";
 const arweave = Arweave.init({
     host: "35.154.154.73",

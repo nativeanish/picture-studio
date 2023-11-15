@@ -127,7 +127,8 @@ async function _upload_video() {
                             _setDescription("Uploading video to irys")
                             const e_video = await upload_irys(Buffer.from(video), "video", _tags)
                             if (e_video?.length) {
-                                const res = await contract.writeInteraction({ function: "upload_video", title, id: e_video, description, tags, thumbnails: thumbnail_id, access_model: accesss })
+                                // const res = await contract.writeInteraction({ function: "upload_video", title, id: e_video, description, tags, thumbnails: thumbnail_id, access_model: accesss })
+                                await contract.writeInteraction({ function: "upload_video", title, id: e_video, description, tags, thumbnails: thumbnail_id, access_model: accesss })
                                 _setDescription("Writing to Contract")
                                 // if (res?.bundlrResponse?.id) {
                                 _setOpen(false)
@@ -220,7 +221,8 @@ async function _upload_video() {
                         const e_video = await upload_irys(Buffer.from(video), "video", _tags)
                         if (e_video?.length) {
                             _setDescription("Writing to Contract")
-                            const res = await contract.writeInteraction({ function: "upload_video", playlist: _playlist.id, title, description, tags, id: e_video, thumbnails: thumbnail_id, })
+                            // const res = await contract.writeInteraction({ function: "upload_video", playlist: _playlist.id, title, description, tags, id: e_video, thumbnails: thumbnail_id, })
+                            await contract.writeInteraction({ function: "upload_video", playlist: _playlist.id, title, description, tags, id: e_video, thumbnails: thumbnail_id, })
                             // if (res?.bundlrResponse?.id) {
                             window.location.reload()
                             // } else {

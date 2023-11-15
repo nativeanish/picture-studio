@@ -64,7 +64,8 @@ const _uploadPlaylist = async () => {
                 if (id?.length) {
                     const contract = await get_contract()
                     _setDescription("Writing to contract")
-                    const data = await contract.writeInteraction({ function: "create_playlist", title, id: id, description, tags, access_model: access, thumbnails: id })
+                    // const data = await contract.writeInteraction({ function: "create_playlist", title, id: id, description, tags, access_model: access, thumbnails: id })
+                    await contract.writeInteraction({ function: "create_playlist", title, id: id, description, tags, access_model: access, thumbnails: id })
                     // if (data?.bundlrResponse?.id) {
                     window.location.reload()
                     // }
@@ -91,7 +92,8 @@ const _uploadPlaylist = async () => {
                 const contract = await get_contract()
                 if (access === "exclusive") {
                     _setDescription("Writing to contract")
-                    const data = await contract.writeInteraction({ function: "create_playlist", title: title, id: id, description: description, tags: tags, access_model: access, thumbnails: id, price_winston: String(parseFloat(price) * 1000000000000) })
+                    // const data = await contract.writeInteraction({ function: "create_playlist", title: title, id: id, description: description, tags: tags, access_model: access, thumbnails: id, price_winston: String(parseFloat(price) * 1000000000000) })
+                    await contract.writeInteraction({ function: "create_playlist", title: title, id: id, description: description, tags: tags, access_model: access, thumbnails: id, price_winston: String(parseFloat(price) * 1000000000000) })
                     // if (data?.bundlrResponse?.id) {
                     window.location.reload()
                     _setopen(false)
@@ -108,7 +110,8 @@ const _uploadPlaylist = async () => {
                     // }
                 } else {
                     _setDescription("Writing to contract")
-                    const data = await contract.writeInteraction({ function: "create_playlist", title: title, id: id, description: description, tags: tags, access_model: "open", thumbnails: id })
+                    // const data = await contract.writeInteraction({ function: "create_playlist", title: title, id: id, description: description, tags: tags, access_model: "open", thumbnails: id })
+                    await contract.writeInteraction({ function: "create_playlist", title: title, id: id, description: description, tags: tags, access_model: "open", thumbnails: id })
                     // if (data?.bundlrResponse?.id) {
                     window.location.reload()
                     _setopen(false)
